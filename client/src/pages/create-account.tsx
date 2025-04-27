@@ -6,13 +6,9 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
-import { insertUserSchema } from "@shared/schema";
 
-// Extend the schema with validation rules
-const createAccountSchema = insertUserSchema.extend({
+// Simple validation schema
+const createAccountSchema = z.object({
   fullName: z.string().min(2, "Full name is required"),
   email: z.string().email("Please enter a valid email address"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -25,7 +21,6 @@ type CreateAccountFormData = z.infer<typeof createAccountSchema>;
 
 export default function CreateAccount() {
   const [_, navigate] = useLocation();
-  const { toast } = useToast();
   
   const form = useForm<CreateAccountFormData>({
     resolver: zodResolver(createAccountSchema),
@@ -39,26 +34,11 @@ export default function CreateAccount() {
     },
   });
   
-  const createAccountMutation = useMutation({
-    mutationFn: async (data: CreateAccountFormData) => {
-      const response = await apiRequest("POST", "/api/users", data);
-      return response.json();
-    },
-    onSuccess: () => {
-      navigate("/account-settings");
-    },
-    onError: (error) => {
-      toast({
-        title: "Account creation failed",
-        description: error.message || "Please check your details and try again",
-        variant: "destructive",
-      });
-    }
-  });
-  
+  // Static navigation with no API calls
   const onSubmit = useCallback((data: CreateAccountFormData) => {
-    createAccountMutation.mutate(data);
-  }, [createAccountMutation]);
+    // Simply navigate to account settings page
+    navigate("/account-settings");
+  }, [navigate]);
   
   return (
     <div className="app-page">
@@ -185,9 +165,8 @@ export default function CreateAccount() {
           <Button
             type="submit"
             className="w-full bg-primary text-white py-3 rounded-md font-medium h-12 mt-6"
-            disabled={createAccountMutation.isPending}
           >
-            {createAccountMutation.isPending ? "Creating Account..." : "Create Account"}
+            Create Account
           </Button>
         </form>
       </Form>

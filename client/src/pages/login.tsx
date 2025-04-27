@@ -6,9 +6,6 @@ import { z } from "zod";
 import { Button } from "@/components/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
-import { useMutation } from "@tanstack/react-query";
-import { apiRequest } from "@/lib/queryClient";
-import { useToast } from "@/hooks/use-toast";
 
 const loginSchema = z.object({
   email: z.string().email("Please enter a valid email address"),
@@ -19,7 +16,6 @@ type LoginFormData = z.infer<typeof loginSchema>;
 
 export default function Login() {
   const [_, navigate] = useLocation();
-  const { toast } = useToast();
   
   const form = useForm<LoginFormData>({
     resolver: zodResolver(loginSchema),
@@ -29,26 +25,11 @@ export default function Login() {
     },
   });
   
-  const loginMutation = useMutation({
-    mutationFn: async (data: LoginFormData) => {
-      const response = await apiRequest("POST", "/api/login", data);
-      return response.json();
-    },
-    onSuccess: () => {
-      navigate("/account-settings");
-    },
-    onError: (error) => {
-      toast({
-        title: "Login failed",
-        description: error.message || "Please check your credentials and try again",
-        variant: "destructive",
-      });
-    }
-  });
-  
+  // Simplified static navigation with no API call
   const onSubmit = useCallback((data: LoginFormData) => {
-    loginMutation.mutate(data);
-  }, [loginMutation]);
+    // Simply navigate to the account settings page
+    navigate("/account-settings");
+  }, [navigate]);
   
   return (
     <div className="app-page">
@@ -95,9 +76,8 @@ export default function Login() {
           <Button
             type="submit"
             className="w-full bg-gray-300 text-white py-3 rounded-md font-medium h-12 mt-6"
-            disabled={loginMutation.isPending}
           >
-            {loginMutation.isPending ? "Logging in..." : "Login"}
+            Login
           </Button>
         </form>
       </Form>

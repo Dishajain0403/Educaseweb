@@ -1,15 +1,19 @@
 import React from "react";
-import { Link } from "wouter";
+import { useLocation } from "wouter";
 import { Home, ChevronLeft, ChevronRight, Sun } from "lucide-react";
 
 export default function NavControls() {
+  const [_, navigate] = useLocation();
+
+  const goHome = () => {
+    navigate("/");
+  };
+
   return (
     <div className="fixed bottom-0 left-0 right-0 max-w-md mx-auto px-4 py-3 flex justify-between items-center bg-white border-t border-border">
-      <Link href="/">
-        <a>
-          <Home className="h-6 w-6 text-gray-600" />
-        </a>
-      </Link>
+      <button onClick={goHome}>
+        <Home className="h-6 w-6 text-gray-600" />
+      </button>
       
       <div className="flex items-center">
         <button className="mr-2">
